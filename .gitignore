@@ -1,0 +1,9 @@
+# Distribution / packaging
+counter/
+game/
+
+# Environments
+env/
+venv/
+
+
