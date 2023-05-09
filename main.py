@@ -22,13 +22,14 @@ def value_event():
 async def counter(websocket):
     global USERS, VALUE
 
-    # Register user
     try:
-        msisdn = websocket.request_headers.get('msisdn')
+        msisdn = websocket.request_headers.get('msisdn') #retriving token from websocket headers
     except: #Custom exection should be added
             pass
     
     try:
+        # Register user
+
         USERS[msisdn] = websocket
         websockets.broadcast([v for k, v in USERS.items()], users_event())
         # Send current state to user
@@ -38,25 +39,15 @@ async def counter(websocket):
         # Manage state changes
         async for message in websocket:
             event = json.loads(message)
-            print(event)
-            if event["action"] == "minus":
-                VALUE -= 1
-                websockets.broadcast([v for k, v in USERS.items()], value_event())
-            elif event["action"] == "plus":
-                VALUE += 1
-                websockets.broadcast([v for k, v in USERS.items()], value_event())
+            print(f"=====> {event}")
+            dest_msisdn = event["destination_msisdn"]
+            print(f"----->  {USERS[dest_msisdn]}")
+            message_val = event["message"]
+            await USERS[dest_msisdn].send(message_val)
 
-                try:
-                    await list([v for k, v in USERS.items()])[0].send("some")
-                except:
-                    pass
-            else:
-                websockets.broadcast([v for k, v in USERS.items()], value_event())
-                #logging.error("unsupported event: %s", event)   
     finally:
         # Unregister user
         del USERS[msisdn]
-        print(f"======>  {USERS}")
         websockets.broadcast([v for k, v in USERS.items()], users_event())
         
 
