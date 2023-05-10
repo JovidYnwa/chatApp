@@ -1,59 +1,82 @@
-#!/usr/bin/env python
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse
 
-import asyncio
-import json
-import logging
-import websockets
+app = FastAPI()
 
-logging.basicConfig()
+html = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <h1>WebSocket Chat</h1>
+        <h2>Your ID: <span id="ws-id"></span></h2>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText" autocomplete="off"/>
+            <button>Send</button>
+        </form>
+        <ul id='messages'>
+        </ul>
+        <script>
+            var client_id = Date.now()
+            document.querySelector("#ws-id").textContent = client_id;
+            var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+            ws.onmessage = function(event) {
+                var messages = document.getElementById('messages')
+                var message = document.createElement('li')
+                var content = document.createTextNode(event.data)
+                message.appendChild(content)
+                messages.appendChild(message)
+            };
+            function sendMessage(event) {
+                var input = document.getElementById("messageText")
+                ws.send(input.value)
+                input.value = ''
+                event.preventDefault()
+            }
+        </script>
+    </body>
+</html>
+"""
 
-USERS = dict()
-#USERS = set()
 
-VALUE = 0
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
 
-def users_event():
-    return json.dumps({"type": "users", "count": len(USERS)})
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
 
-def value_event():
-    return json.dumps({"type": "value", "value": VALUE})
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
 
 
-async def counter(websocket):
-    global USERS, VALUE
+manager = ConnectionManager()
 
+
+@app.get("/")
+async def get():
+    return HTMLResponse(html)
+
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int):
+    await manager.connect(websocket)
     try:
-        msisdn = websocket.request_headers.get('msisdn') #retriving token from websocket headers
-    except: #Custom exection should be added
-            pass
-    
-    try:
-        # Register user
+        while True:
+            data = await websocket.receive_text()
+            await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.broadcast(f"Client #{client_id} says: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast(f"Client #{client_id} left the chat")
 
-        USERS[msisdn] = websocket
-        websockets.broadcast([v for k, v in USERS.items()], users_event())
-        # Send current state to user
-        await websocket.send(value_event())
-        print(f"======>  {USERS}")
-
-        # Manage state changes
-        async for message in websocket:
-            event = json.loads(message)
-            print(f"=====> {event}")
-            dest_msisdn = event["destination_msisdn"]
-            print(f"----->  {USERS[dest_msisdn]}")
-            message_val = event["message"]
-            await USERS[dest_msisdn].send(message_val)
-
-    finally:
-        # Unregister user
-        del USERS[msisdn]
-        websockets.broadcast([v for k, v in USERS.items()], users_event())
-        
-
-async def main():
-    async with websockets.serve(counter, "localhost", 6789):
-        await asyncio.Future()  # run forever
-
-if __name__ == "__main__":
-    asyncio.run(main())
