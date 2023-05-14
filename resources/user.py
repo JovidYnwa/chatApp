@@ -27,7 +27,7 @@ async def create_user(post: Post):
 
 @router.get("/get_users")
 async def get_user():
-    user = list(collection["posts"].find())
+    user = list(collection["users"].find({"age":0}))
     print(user)
     
     return {"success": "Jaaaa"}
