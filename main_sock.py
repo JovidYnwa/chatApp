@@ -29,7 +29,6 @@ async def counter(websocket):
     
     try:
         # Register user
-
         USERS[msisdn] = websocket
         websockets.broadcast([v for k, v in USERS.items()], users_event())
         # Send current state to user
@@ -44,7 +43,6 @@ async def counter(websocket):
             print(f"----->  {USERS[dest_msisdn]}")
             message_val = event["message"]
             await USERS[dest_msisdn].send(message_val)
-
     finally:
         # Unregister user
         del USERS[msisdn]
