@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 
-DATABASE_URL = "mongodb://localhost:27017/test"
+DATABASE_URL = "mongodb://localhost:27017/mychat"
 
 # Connect to MongoDB using the DATABASE_URL
 client = MongoClient(DATABASE_URL)
@@ -10,6 +10,6 @@ client = MongoClient(DATABASE_URL)
 database = client.get_database()
 
 # Access a collection within the database
-collection = database["collection_name"]
+collection = database["collection_chat"]
 
-# Perform operations on the collection
+# Perform operations on the collectionth
