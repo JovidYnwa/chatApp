@@ -27,15 +27,7 @@ async def create_user(post: Post):
 
 @router.get("/get_users")
 async def get_user():
-    # Convert user object to dict
-    users_collection = collection["posts"]
-
-    users = collection.find()
-    user_instances = []
-    for user_data in users:
-
-        user_instances.append(user_data)
-    print(user_instances, "fuck")
-
+    user = list(collection["posts"].find())
+    print(user)
     
-    return {"inserted_id": 1}
+    return {"success": "Jaaaa"}
