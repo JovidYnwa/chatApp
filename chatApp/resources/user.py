@@ -1,23 +1,24 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from starlette.requests import Request
 
-from models.user import User
 from config.db import collection
+from managers.user import UserExistsException, UserManager
+from models.user import User
+from schemas.response.user import UserOut
 
 
-router = APIRouter()
+user_router = APIRouter()
 
-@router.post("/users")
-async def create_user(user: User):
-    # Convert user object to dict
-    users_collection = collection["users"]
-    users_collection.insert_one(dict(user))
-    return {"inserted_id": "yo"}
+@user_router.post("/users", response_model=UserOut)
+async def create_user(request: Request, user: User):
+    try:
+        query = UserManager.create_user(user)
+    except UserExistsException:
+        raise HTTPException(status_code=409, detail="User already excists")
+    return query
 
 
-
-@router.get("/get_users")
+@user_router.get("/get_users")
 async def get_user():
     user = list(collection["users"].find({"age":0}))
-    print(user)
-    
     return {"success": "Jaaaa"}

@@ -12,12 +12,6 @@ async def create_chatroom(request: Request, chat_room: ChatRoom):
     return ChatRoomManager.create_room(chat_room)
 
 
-# @room_router.get("/chatroom/", response_model=List[ChatRoomOut])
-# async def get_chatroom():
-#     chat_rooms = ChatRoomManager.get_chatroom()
-
-#     return chat_rooms
-
 @room_router.get("/chatroom/", response_model=List[ChatRoomOut])
 async def get_chatroom():
     chat_rooms = ChatRoomManager.get_chatroom()

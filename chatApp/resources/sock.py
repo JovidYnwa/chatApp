@@ -30,14 +30,14 @@ async def websocket_endpoint(user_id: str, websocket: WebSocket):
             #socket_collection.insert_one(message.dict())
 
             # Get recipient's WebSocket
-            recipient_websocket = active_connections.get(message.recipient)
+            recipient_websocket = active_connections.get(message_data.recipient)
             if recipient_websocket:
                 # Send message to recipient
                 await recipient_websocket.send_text(message_data)
             else:
                 # Handle recipient not online
                 # You can choose to store the message for later delivery or handle it in any other way
-                print(f"Recipient '{message.recipient}' is not online. Message could not be delivered.")
+                print(f"Recipient '{message_data.recipient}' is not online. Message could not be delivered.")
     except WebSocketDisconnect:
         # Remove WebSocket connection
         del active_connections[user_id]

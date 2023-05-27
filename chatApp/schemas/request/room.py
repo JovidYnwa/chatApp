@@ -8,3 +8,5 @@ class ChatRoom(BaseModel):
     description: str
     participants: List[str]  # List of user IDs
     end_date: str
+
+
