@@ -10,7 +10,6 @@ class UserManager:
     @staticmethod
     def get_existing_contacts(user_data):
         user_collection = collection["user"]
-        # Serialize user_data to a JSON-compatible format
         serialized_data = json.loads(user_data.json())
         query = {"msisdn": {"$in": serialized_data['msisdns']}}
         result = user_collection.find(query)

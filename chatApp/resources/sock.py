@@ -7,7 +7,7 @@ sock_router = APIRouter()
 
 
 
-# In-memory storage for active WebSocket connections
+# In-memory storage for active WebSocket connections (latter on shoud do though Redis)
 active_connections: Dict[str, WebSocket] = {}
 
 
