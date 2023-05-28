@@ -1,15 +1,21 @@
+import json
 from config.db import collection
 
 class UserExistsException(Exception):
     pass
 
+
 class UserManager:
     
-    # @staticmethod
-    # def get_chatroom():
-    #     room_collection = collection["chat_room"]
-    #     chat_rooms =  room_collection.find()
-    #     return [room for room in chat_rooms]
+    @staticmethod
+    def get_existing_contacts(user_data):
+        user_collection = collection["user"]
+        # Serialize user_data to a JSON-compatible format
+        serialized_data = json.loads(user_data.json())
+        query = {"msisdn": {"$in": serialized_data['msisdns']}}
+        result = user_collection.find(query)
+        existing_contacts = [contact["msisdn"] for contact in result]
+        return existing_contacts
 
     
     @staticmethod
