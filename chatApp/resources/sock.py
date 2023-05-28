@@ -46,6 +46,3 @@ async def websocket_endpoint(user_id: str, websocket: WebSocket):
             #     print(f"Recipient '{message_data.recipient}' is not online. Message could not be delivered.")
     except WebSocketDisconnect:
         del active_connections[user_id]# Remove WebSocket connection
-
-
-
