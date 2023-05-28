@@ -12,18 +12,15 @@ class ChatRoomManager:
             query = {"_id": ObjectId(chatroom_data)}
         else:
             query={}
-            
+
         chat_rooms =  room_collection.find(query)
-        print("======> ",chat_rooms)
         return [room for room in chat_rooms]
 
     
     @staticmethod
     def create_room(chatroom_data):
         room_collection = collection["chat_room"]
+        chatroom_data.participants.append(chatroom_data.creator_id) #Inserting creator of to the paricipants
         result = room_collection.insert_one(dict(chatroom_data))
         room_id = str(result.inserted_id)
-
-        #also creating new instance with id on redis
-        #active_connections
         return room_id
