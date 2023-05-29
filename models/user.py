@@ -1,9 +1,8 @@
 from pydantic import BaseModel
 
 class User(BaseModel):
-    name: str
-    age: int
+    msisdn: str
+    login: str
 
-class Post(BaseModel):
-    name1: str
-    desc1: str
+    # def __init__(self):
+    #     return self.msisdn

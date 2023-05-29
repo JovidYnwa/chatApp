@@ -28,12 +28,13 @@ async def websocket_endpoint(user_id: str, websocket: WebSocket):
 
             #Send messages (Dont like this implemataion should figure smth else)
             room = ChatRoomManager.get_chatroom(message_data["room_id"])
+            print("======> ", room)
             participants = room[0]["participants"]
             print("party membars ", participants)
             for participant in participants:
                 try:
                     if participant != message_data["sender_id"]:
-                        await active_connections[participant].send_text(message_data["content"]) #Seding message
+                        await active_connections[participant].send_text(message_data) #Seding message
                 except:
                     pass
 
