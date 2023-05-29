@@ -19,7 +19,8 @@ docs_build
 venv
 docs.zip
 archive.zip
-*__pycache__
+*.pyc
+
 # vim temporary files
 *~
 .*.sw?
