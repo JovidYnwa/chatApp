@@ -3,7 +3,7 @@ import uvicorn
 from resources.routes import api_router
 
 app = FastAPI()
-app.include_router(api_router)
+app.include_router(api_router)#yo
 
 
 if __name__ == "__main__":
